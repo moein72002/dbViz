@@ -291,7 +291,7 @@ def produce_plot_alt(path, preds, planeloader, images, labels, trainloader, epoc
         plt.savefig(f'{path}.png',bbox_extra_artists=(legend1,), bbox_inches='tight')
     plt.close(fig)
 
-    val_counts = dict(Counter(color_idx))
+    val_counts = dict(Counter(class_pred))
     return val_counts
 
 def produce_plot_x(path, preds, planeloader, images, labels, trainloader, title='best', temp=1.0,true_labels = None):
