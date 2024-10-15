@@ -179,6 +179,7 @@ def calculate_overall_auc(args):
                 # Load ground truth from metadata.pt
                 metadata = torch.load(metadata_file_path)
                 ground_truth = metadata.get('ground_truth')
+                print(f"ground_truth: {ground_truth}")
 
                 # Accumulate ground truth and predictions for each metric
                 if ground_truth:
