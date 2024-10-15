@@ -38,7 +38,7 @@ def renyi_entropy(probabilities, alpha):
 
     return renyi_entropy_value
 
-def plot(net_name, load_path, plot_path):
+def plot(net_name, load_path, plot_path, testloader, normalize_transform):
     if args.baseset == "CIFAR10":
         args.num_classes = 10
     elif args.baseset == "CIFAR100":
@@ -168,11 +168,13 @@ def calculate_overall_auc(args):
 
             # Check if both the model and metadata files exist
             if os.path.exists(model_file_path) and os.path.exists(metadata_file_path):
+                testloader, normalize_transform = create_test_loader(model_folder_path)
+
                 # Update args.load_path to the current model folder path
                 args.load_path = model_folder_path
 
                 # Call the plot function for the current model
-                plot_result = plot(args.net, args.load_path, args.plot_path)
+                plot_result = plot(args.net, args.load_path, args.plot_path, testloader, normalize_transform)
 
                 # Load ground truth from metadata.pt
                 metadata = torch.load(metadata_file_path)
@@ -248,12 +250,12 @@ class CustomDataset(Dataset):
 
         return image, label
 
-def create_test_loader(args):
+def create_test_loader(model_folder_path):
     # Get the directory of the test dataset from args.load_path
-    test_data_dir = os.path.join(os.path.dirname(args.load_path), 'test_dataset')
+    test_data_dir = os.path.join(os.path.dirname(model_folder_path), 'test_dataset')
 
     # Load the metadata to extract the transformation
-    metadata_path = os.path.join(os.path.dirname(args.load_path), 'metadata.pt')
+    metadata_path = os.path.join(os.path.dirname(model_folder_path), 'metadata.pt')
     metadata = torch.load(metadata_path)
     transform = metadata["config"]["transform"]
     normalize_transform = next((t for t in transform.transforms if isinstance(t, Normalize)), None)
@@ -264,7 +266,6 @@ def create_test_loader(args):
 
     return test_loader, normalize_transform
 
-testloader, normalize_transform = create_test_loader(args)
 calculate_overall_auc(args)
 
 
