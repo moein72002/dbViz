@@ -202,6 +202,7 @@ parser.add_argument('--net', default='ResNet', type=str)
 parser.add_argument('--load_path', type=str, default=None)
 parser.add_argument('--plot_path', type=str, default=None)
 parser.add_argument('--bs', type=int, default=None)
+parser.add_argument('--num_plots', type=int, default=20)
 parser.add_argument('--baseset', default='CIFAR10', type=str,
                             choices=['CIFAR10', 'CIFAR100','SVHN',
                             'CIFAR100_label_noise'])
