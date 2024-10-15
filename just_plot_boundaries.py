@@ -188,7 +188,7 @@ def calculate_overall_auc(args):
                     all_ground_truth.append(0)
 
                 for key in all_predictions:
-                    all_predictions[key].extend(plot_result[key])  # Collect predictions for each metric
+                    all_predictions[key].append(plot_result[key])  # Collect predictions for each metric
             else:
                 print(f"Model or metadata file not found in {model_folder_path}")
 
