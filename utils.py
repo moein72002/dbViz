@@ -13,6 +13,8 @@ import numpy as np
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import matplotlib.patches as mpatches
 
+from collections import Counter
+
 import torch
 import torch.nn as nn
 import torch.nn.init as init
