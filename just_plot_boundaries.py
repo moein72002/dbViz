@@ -23,28 +23,6 @@ from options import options
 from utils import simple_lapsed_time
 from utils import produce_plot_alt
 
-#args.plot_path
-parser = argparse.ArgumentParser(description='Argparser for sanity check')
-
-parser.add_argument('--net', default='ResNet', type=str)
-parser.add_argument('--plot_path', type=str, default=None)
-parser.add_argument('--baseset', default='CIFAR10', type=str,
-                            choices=['CIFAR10', 'CIFAR100','SVHN',
-                            'CIFAR100_label_noise'])
-parser.add_argument('--dryrun', action='store_true')
-parser.add_argument('--imgs', default=None,
-                        type=lambda s: [int(item) for item in s.split(',')])
-parser.add_argument('--temp', default=1.0, type=float)
-parser.add_argument('--plot_method', default='greys', type=str)
-parser.add_argument('--resolution', default=500, type=float, help='resolution for plot')
-parser.add_argument('--adv', action='store_true', help='Adversarially attack images?')
-
-args = parser.parse_args()
-print(args)
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-trainloader, testloader = get_data(args)
-
 def plot(net_name, load_path, plot_path):
     print('###############################')
     print(net_name)
@@ -110,29 +88,57 @@ def plot(net_name, load_path, plot_path):
     end = time.time()
     simple_lapsed_time("Time taken to plot the image", end - start)
 
+#args.plot_path
+parser = argparse.ArgumentParser(description='Argparser for sanity check')
 
-Archs = ['ResNet', 'VGG' , 'GoogLeNet' , 'DenseNet' , 'MobileNet']
-all_models_path = './saved_models/'
-all_final_plot_path = './saved_final_imgs'
+parser.add_argument('--net', default='ResNet', type=str)
+parser.add_argument('--load_path', type=str, default=None)
+parser.add_argument('--plot_path', type=str, default=None)
+parser.add_argument('--baseset', default='CIFAR10', type=str,
+                            choices=['CIFAR10', 'CIFAR100','SVHN',
+                            'CIFAR100_label_noise'])
+parser.add_argument('--dryrun', action='store_true')
+parser.add_argument('--imgs', default=None,
+                        type=lambda s: [int(item) for item in s.split(',')])
+parser.add_argument('--temp', default=1.0, type=float)
+parser.add_argument('--plot_method', default='greys', type=str)
+parser.add_argument('--resolution', default=500, type=float, help='resolution for plot')
+parser.add_argument('--adv', action='store_true', help='Adversarially attack images?')
 
-for arch in Archs:
-    #net_name, load_path, plot_path
-    print('########################################################################')
-    net_name = arch
+args = parser.parse_args()
+print(args)
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    for originals in ['naive', 'mixup', 'cutmix']:
-        load_path = all_models_path + originals + '/' + arch + '_cifar10.pth'
-        plot_path = all_final_plot_path + '/soft_distillation/' + arch + '/' + originals
-        plot(net_name, load_path, plot_path)
+trainloader, testloader = get_data(args)
+
+plot(args.net, args.load_path, args.plot_path)
 
 
-    for from_arch in Archs:
-        load_path = all_models_path + '/soft_distillation/from_' + from_arch + '/' + arch + '_cifar10.pth'
-        plot_path = all_final_plot_path  + '/soft_distillation/' + arch + '/' + 'from_' + from_arch
-        plot(net_name, load_path, plot_path)
+# Archs = ['ResNet', 'VGG' , 'GoogLeNet' , 'DenseNet' , 'MobileNet']
+# all_models_path = './saved_models/'
+# all_final_plot_path = './saved_final_imgs'
 
-    for from_method in ['cutmix', 'mixup']:
-        load_path = all_models_path + '/soft_distillation/from_' + from_method + '/' + arch + '_cifar10.pth'
-        plot_path = all_final_plot_path + '/soft_distillation/' + arch + '/' + 'from_' + from_method
-        plot(net_name, load_path, plot_path)
+# load_path = all_models_path + '/soft_distillation/from_' + from_method + '/' + arch + '_cifar10.pth'
+# plot_path = all_final_plot_path + '/soft_distillation/' + arch + '/' + 'from_' + from_method
+
+# for arch in Archs:
+#     #net_name, load_path, plot_path
+#     print('########################################################################')
+#     net_name = arch
+#
+#     for originals in ['naive', 'mixup', 'cutmix']:
+#         load_path = all_models_path + originals + '/' + arch + '_cifar10.pth'
+#         plot_path = all_final_plot_path + '/soft_distillation/' + arch + '/' + originals
+#         plot(net_name, load_path, plot_path)
+#
+#
+#     for from_arch in Archs:
+#         load_path = all_models_path + '/soft_distillation/from_' + from_arch + '/' + arch + '_cifar10.pth'
+#         plot_path = all_final_plot_path  + '/soft_distillation/' + arch + '/' + 'from_' + from_arch
+#         plot(net_name, load_path, plot_path)
+#
+#     for from_method in ['cutmix', 'mixup']:
+#         load_path = all_models_path + '/soft_distillation/from_' + from_method + '/' + arch + '_cifar10.pth'
+#         plot_path = all_final_plot_path + '/soft_distillation/' + arch + '/' + 'from_' + from_method
+#         plot(net_name, load_path, plot_path)
 
