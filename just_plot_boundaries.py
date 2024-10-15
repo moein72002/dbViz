@@ -12,6 +12,7 @@ from sklearn.metrics import roc_auc_score
 
 import torchvision
 import torchvision.transforms as transforms
+from torchvision.transforms import Normalize
 
 import os
 import argparse
