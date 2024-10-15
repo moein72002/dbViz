@@ -112,10 +112,11 @@ def plot(net_name, load_path, plot_path, testloader, normalize_transform):
         val_counts = produce_plot_alt(args.plot_path, preds, planeloader, images, labels, normalize_transform, temp=args.temp)
         print(f"val_counts: {val_counts}")
 
-        ats_sum_counts = sum(val_counts.get(label, 0) for label in labels)
+        total_count = sum(val_counts.values())
+
+        ats_sum_counts = sum(val_counts.get(label, 0) for label in labels if val_counts.get(label, 0) < total_count * 0.5)
 
         # Calculate the total count to normalize the probabilities
-        total_count = sum(val_counts.values())
 
         # Compute the probabilities from the value counts
         probabilities = {label: count / total_count for label, count in val_counts.items()}
