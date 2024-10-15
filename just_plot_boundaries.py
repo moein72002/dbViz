@@ -7,6 +7,8 @@ import torch.backends.cudnn as cudnn
 import numpy as np
 import random
 import pickle
+import math
+from sklearn.metrics import roc_auc_score
 
 import torchvision
 import torchvision.transforms as transforms
@@ -22,6 +24,19 @@ from evaluation import train, test, test_on_trainset, decision_boundary
 from options import options
 from utils import simple_lapsed_time
 from utils import produce_plot_alt
+
+def renyi_entropy(probabilities, alpha):
+    # If alpha equals 1, the formula diverges; handle as a special case.
+    if alpha == 1:
+        raise ValueError("Alpha should not be equal to 1")
+
+    # Compute the sum of probabilities raised to the power of alpha
+    sum_p_alpha = sum([p ** alpha for p in probabilities.values()])
+
+    # Calculate Rényi entropy using the formula
+    renyi_entropy_value = (1 / (1 - alpha)) * math.log(sum_p_alpha)
+
+    return renyi_entropy_value
 
 def plot(net_name, load_path, plot_path):
     if args.baseset == "CIFAR10":
@@ -48,56 +63,136 @@ def plot(net_name, load_path, plot_path):
 
 
     start = time.time()
-    if args.imgs is None:
-        # images, labels = get_random_images(trainloader.dataset)
-        images, labels, ids = get_random_images(testloader.dataset)
-    elif -1 in args.imgs:
-        dummy_imgs, _ = get_random_images(testloader.dataset)
-        images, labels = get_noisy_images(torch.stack(dummy_imgs), testloader.dataset, net, device)
-    elif -10 in args.imgs:
-        image_ids = args.imgs[0]
-        #         import ipdb; ipdb.set_trace()
-        images = [testloader.dataset[image_ids][0]]
-        labels = [testloader.dataset[image_ids][1]]
-        for i in list(range(2)):
-            temp = torch.zeros_like(images[0])
-            if i == 0:
-                temp[0, 0, 0] = 1
+
+
+    sum_probs = {}
+    ats_sum = 0.0
+    for _ in range(args.num_plots):
+        if args.imgs is None:
+            # images, labels = get_random_images(trainloader.dataset)
+            images, labels, ids = get_random_images(testloader.dataset)
+        elif -1 in args.imgs:
+            dummy_imgs, _ = get_random_images(testloader.dataset)
+            images, labels = get_noisy_images(torch.stack(dummy_imgs), testloader.dataset, net, device)
+        elif -10 in args.imgs:
+            image_ids = args.imgs[0]
+            #         import ipdb; ipdb.set_trace()
+            images = [testloader.dataset[image_ids][0]]
+            labels = [testloader.dataset[image_ids][1]]
+            for i in list(range(2)):
+                temp = torch.zeros_like(images[0])
+                if i == 0:
+                    temp[0, 0, 0] = 1
+                else:
+                    temp[0, -1, -1] = 1
+
+                images.append(temp)
+                labels.append(0)
+
+        #         dummy_imgs, _ = get_random_images(testloader.dataset)
+        #         images, labels = get_noisy_images(torch.stack(dummy_imgs), testloader.dataset, net, device)
+        # incomplete
+        else:
+            image_ids = args.imgs
+            images = [testloader.dataset[i][0] for i in image_ids]
+            labels = [testloader.dataset[i][1] for i in image_ids]
+            print(labels)
+
+        if args.adv:
+            adv_net = AttackPGD(net, trainloader.dataset)
+            adv_preds, imgs = adv_net(torch.stack(images).to(device), torch.tensor(labels).to(device))
+            images = [img.cpu() for img in imgs]
+
+        planeloader = make_planeloader(images, args)
+        preds = decision_boundary(args, net, planeloader, device)
+
+        # sampl_path = '_'.join(list(map(str, args.imgs)))
+        args.plot_path = plot_path
+        val_counts = produce_plot_alt(args.plot_path, preds, planeloader, images, labels, trainloader, temp=args.temp)
+        print(f"val_counts: {val_counts}")
+
+        ats_sum_counts = sum(val_counts.get(label, 0) for label in labels)
+
+        # Calculate the total count to normalize the probabilities
+        total_count = sum(val_counts.values())
+
+        # Compute the probabilities from the value counts
+        probabilities = {label: count / total_count for label, count in val_counts.items()}
+
+        for label, prob in probabilities.items():
+            if label in sum_probs:
+                sum_probs[label] += prob
             else:
-                temp[0, -1, -1] = 1
+                sum_probs[label] = prob
 
-            images.append(temp)
-            labels.append(0)
+        ats = ats_sum_counts / sum(val_counts.values())
 
-    #         dummy_imgs, _ = get_random_images(testloader.dataset)
-    #         images, labels = get_noisy_images(torch.stack(dummy_imgs), testloader.dataset, net, device)
-    # incomplete
-    else:
-        image_ids = args.imgs
-        images = [testloader.dataset[i][0] for i in image_ids]
-        labels = [testloader.dataset[i][1] for i in image_ids]
-        print(labels)
+        # print(f"ats: {ats}")
+        ats_sum += ats
 
-    if args.adv:
-        adv_net = AttackPGD(net, trainloader.dataset)
-        adv_preds, imgs = adv_net(torch.stack(images).to(device), torch.tensor(labels).to(device))
-        images = [img.cpu() for img in imgs]
+    avg_probs = {}
+    for label, prob in sum_probs.items():
+        avg_probs[label] = sum_probs[label] / args.num_plots
 
-    planeloader = make_planeloader(images, args)
-    preds = decision_boundary(args, net, planeloader, device)
+    print(f"args.load_path: {args.load_path}")
 
-    # sampl_path = '_'.join(list(map(str, args.imgs)))
-    args.plot_path = plot_path
-    val_counts = produce_plot_alt(args.plot_path, preds, planeloader, images, labels, trainloader, temp=args.temp)
-    print(f"val_counts: {val_counts}")
+    renyi_entropy_of_avg_probs = renyi_entropy(avg_probs, args.alpha)
+    print(f"renyi_entropy_of_avg_probs: {renyi_entropy_of_avg_probs}")
 
-    sum_counts = sum(val_counts.get(label, 0) for label in labels)
-    ats = sum_counts / sum(val_counts.values())
-
-    print(f"ats: {ats}")
+    ats_avg = ats_sum / args.num_plots
+    print(f"ats_avg: {ats_avg}")
+    print()
 
     end = time.time()
     simple_lapsed_time("Time taken to plot the image", end - start)
+
+    return {
+        "renyi_entropy_of_avg_probs": renyi_entropy_of_avg_probs,
+        "ats_avg": ats_avg
+    }
+
+def calculate_overall_auc(args):
+    # Initialize dictionaries to store all predictions and ground truth labels across models
+    all_predictions = {
+        "renyi_entropy_of_avg_probs": [],
+        "ats_avg": []
+    }
+    all_ground_truth = []
+
+    # Loop through each folder in the specified load path
+    for root, dirs, _ in os.walk(args.load_path):
+        for dir_name in dirs:
+            model_folder_path = os.path.join(root, dir_name)
+            model_file_path = os.path.join(model_folder_path, 'model.pt')
+            metadata_file_path = os.path.join(model_folder_path, 'metadata.pt')
+
+            # Check if both the model and metadata files exist
+            if os.path.exists(model_file_path) and os.path.exists(metadata_file_path):
+                # Update args.load_path to the current model folder path
+                args.load_path = model_folder_path
+
+                # Call the plot function for the current model
+                plot_result = plot(args.net, args.load_path, args.plot_path)
+
+                # Load ground truth from metadata.pt
+                metadata = torch.load(metadata_file_path)
+                ground_truth = metadata.get('ground_truth')
+
+                # Accumulate ground truth and predictions for each metric
+                all_ground_truth.extend(ground_truth)  # Collect all ground truth labels
+                for key in all_predictions:
+                    all_predictions[key].extend(plot_result[key])  # Collect predictions for each metric
+            else:
+                print(f"Model or metadata file not found in {model_folder_path}")
+
+    # Calculate AUC for each metric using the accumulated predictions and ground truth
+    overall_auc = {}
+    for key, predictions in all_predictions.items():
+        auc = roc_auc_score(all_ground_truth, predictions)
+        overall_auc[key] = auc
+
+    print(f"overall_auc: {overall_auc}")
+    return overall_auc
 
 #args.plot_path
 parser = argparse.ArgumentParser(description='Argparser for sanity check')
@@ -113,6 +208,7 @@ parser.add_argument('--dryrun', action='store_true')
 parser.add_argument('--imgs', default=None,
                         type=lambda s: [int(item) for item in s.split(',')])
 parser.add_argument('--temp', default=1.0, type=float)
+parser.add_argument('--alpha', default=10.0, type=float)
 parser.add_argument('--range_l', default=0.5, type=float)
 parser.add_argument('--range_r', default=0.5, type=float)
 parser.add_argument('--plot_method', default='greys', type=str)
@@ -125,7 +221,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 trainloader, testloader = get_data(args)
 
-plot(args.net, args.load_path, args.plot_path)
+plot_all_models(args)
 
 
 # Archs = ['ResNet', 'VGG' , 'GoogLeNet' , 'DenseNet' , 'MobileNet']
