@@ -235,7 +235,7 @@ def rand_bbox(size, lam):
     return bbx1, bby1, bbx2, bby2
 
 
-def produce_plot_alt(path, preds, planeloader, images, labels, trainloader, epoch='best', temp=1.0):
+def produce_plot_alt(path, preds, planeloader, images, labels, normalize_transform, epoch='best', temp=1.0):
     from matplotlib import cm
     from matplotlib.colors import LinearSegmentedColormap
     col_map = cm.get_cmap('tab10')
@@ -262,8 +262,8 @@ def produce_plot_alt(path, preds, planeloader, images, labels, trainloader, epoc
     ax1.add_artist(legend1)
     coords = planeloader.dataset.coords
 
-    dm = torch.tensor(trainloader.dataset.transform.transforms[-1].mean)[:, None, None]
-    ds = torch.tensor(trainloader.dataset.transform.transforms[-1].std)[:, None, None]
+    dm = torch.tensor(normalize_transform.mean)[:, None, None]
+    ds = torch.tensor(normalize_transform.std)[:, None, None]
     for i, image in enumerate(images):
         # import ipdb; ipdb.set_trace()
         img = torch.clamp(image * ds + dm, 0, 1)

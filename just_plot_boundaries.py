@@ -98,17 +98,17 @@ def plot(net_name, load_path, plot_path):
             labels = [testloader.dataset[i][1] for i in image_ids]
             print(labels)
 
-        if args.adv:
-            adv_net = AttackPGD(net, trainloader.dataset)
-            adv_preds, imgs = adv_net(torch.stack(images).to(device), torch.tensor(labels).to(device))
-            images = [img.cpu() for img in imgs]
+        # if args.adv:
+        #     adv_net = AttackPGD(net, trainloader.dataset)
+        #     adv_preds, imgs = adv_net(torch.stack(images).to(device), torch.tensor(labels).to(device))
+        #     images = [img.cpu() for img in imgs]
 
         planeloader = make_planeloader(images, args)
         preds = decision_boundary(args, net, planeloader, device)
 
         # sampl_path = '_'.join(list(map(str, args.imgs)))
         args.plot_path = plot_path
-        val_counts = produce_plot_alt(args.plot_path, preds, planeloader, images, labels, trainloader, temp=args.temp)
+        val_counts = produce_plot_alt(args.plot_path, preds, planeloader, images, labels, normalize_transform, temp=args.temp)
         print(f"val_counts: {val_counts}")
 
         ats_sum_counts = sum(val_counts.get(label, 0) for label in labels)
@@ -219,9 +219,53 @@ args = parser.parse_args()
 print(args)
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-trainloader, testloader = get_data(args)
 
-plot_all_models(args)
+from PIL import Image
+from torch.utils.data import Dataset, DataLoader
+
+class CustomDataset(Dataset):
+    def __init__(self, data_dir, transform=None):
+        self.data_dir = data_dir
+        self.transform = transform
+        self.image_files = [f for f in os.listdir(data_dir) if f.endswith('.jpg')]
+
+    def __len__(self):
+        return len(self.image_files)
+
+    def __getitem__(self, idx):
+        img_name = self.image_files[idx]
+        img_path = os.path.join(self.data_dir, img_name)
+
+        # Load the image
+        image = Image.open(img_path).convert('RGB')
+
+        # Extract the label from the filename
+        label = int(img_name.split('_')[1].split('.')[0])
+
+        # Apply the transformation if provided
+        if self.transform:
+            image = self.transform(image)
+
+        return image, label
+
+def create_test_loader(args):
+    # Get the directory of the test dataset from args.load_path
+    test_data_dir = os.path.join(os.path.dirname(args.load_path), 'test_dataset')
+
+    # Load the metadata to extract the transformation
+    metadata_path = os.path.join(os.path.dirname(args.load_path), 'metadata.pt')
+    metadata = torch.load(metadata_path)
+    transform = metadata["config"]["transform"]
+    normalize_transform = next((t for t in transform.transforms if isinstance(t, Normalize)), None)
+
+    # Create the test dataset and data loader
+    test_dataset = CustomDataset(data_dir=test_data_dir, transform=transform)
+    test_loader = DataLoader(test_dataset, batch_size=args.bs, shuffle=False, num_workers=4)
+
+    return test_loader, normalize_transform
+
+testloader, normalize_transform = create_test_loader(args)
+calculate_overall_auc(args)
 
 
 # Archs = ['ResNet', 'VGG' , 'GoogLeNet' , 'DenseNet' , 'MobileNet']
