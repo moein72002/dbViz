@@ -24,6 +24,11 @@ from utils import simple_lapsed_time
 from utils import produce_plot_alt
 
 def plot(net_name, load_path, plot_path):
+    if args.baseset == "CIFAR10":
+        args.num_classes = 10
+    elif args.baseset == "CIFAR100":
+        args.num_classes = 100
+
     print('###############################')
     print(net_name)
     print(load_path)
