@@ -253,10 +253,10 @@ class CustomDataset(Dataset):
 
 def create_test_loader(model_folder_path):
     # Get the directory of the test dataset from args.load_path
-    test_data_dir = os.path.join(os.path.dirname(model_folder_path), 'test_dataset')
+    test_data_dir = os.path.join(model_folder_path, 'test_dataset')
 
     # Load the metadata to extract the transformation
-    metadata_path = os.path.join(os.path.dirname(model_folder_path), 'metadata.pt')
+    metadata_path = os.path.join(model_folder_path, 'metadata.pt')
     metadata = torch.load(metadata_path)
     transform = metadata["config"]["transform"]
     normalize_transform = next((t for t in transform.transforms if isinstance(t, Normalize)), None)
