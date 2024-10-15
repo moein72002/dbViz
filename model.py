@@ -23,7 +23,9 @@ def get_model(args, device):
     if args.net in ['ResNet','resnet']:
         net = torchvision.models.resnet18()
         net.fc = torch.nn.Linear(net.fc.in_features, args.num_classes)
-
+    elif args.net == "preactresnet18":
+        net = PreActResNet18()
+        net.fc = torch.nn.Linear(net.fc.in_features, args.num_classes)
     elif args.net in ['VGG','vgg']:
         net = VGG('VGG19')
     elif args.net == 'GoogLeNet':
