@@ -181,7 +181,11 @@ def calculate_overall_auc(args):
                 ground_truth = metadata.get('ground_truth')
 
                 # Accumulate ground truth and predictions for each metric
-                all_ground_truth.extend(ground_truth)  # Collect all ground truth labels
+                if ground_truth:
+                    all_ground_truth.append(1)
+                else:
+                    all_ground_truth.append(0)
+
                 for key in all_predictions:
                     all_predictions[key].extend(plot_result[key])  # Collect predictions for each metric
             else:
