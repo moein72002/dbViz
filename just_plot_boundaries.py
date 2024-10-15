@@ -135,7 +135,7 @@ def plot(net_name, load_path, plot_path, testloader, normalize_transform):
     for label, prob in sum_probs.items():
         avg_probs[label] = sum_probs[label] / args.num_plots
 
-    print(f"args.load_path: {args.load_path}")
+    print(f"load_path: {load_path}")
 
     renyi_entropy_of_avg_probs = renyi_entropy(avg_probs, args.alpha)
     print(f"renyi_entropy_of_avg_probs: {renyi_entropy_of_avg_probs}")
@@ -172,11 +172,8 @@ def calculate_overall_auc(args):
             if os.path.exists(model_file_path) and os.path.exists(metadata_file_path):
                 testloader, normalize_transform = create_test_loader(model_folder_path)
 
-                # Update args.load_path to the current model folder path
-                args.load_path = model_folder_path
-
                 # Call the plot function for the current model
-                plot_result = plot(args.net, args.load_path, args.plot_path, testloader, normalize_transform)
+                plot_result = plot(args.net, model_file_path, args.plot_path, testloader, normalize_transform)
 
                 # Load ground truth from metadata.pt
                 metadata = torch.load(metadata_file_path)
