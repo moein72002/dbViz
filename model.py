@@ -22,7 +22,7 @@ print('==> Building model..')
 def get_model(args, device):
     if args.net in ['ResNet','resnet']:
         net = torchvision.models.resnet18()
-        model.fc = torch.nn.Linear(model.fc.in_features, args.num_classes)
+        net.fc = torch.nn.Linear(net.fc.in_features, args.num_classes)
 
     elif args.net in ['VGG','vgg']:
         net = VGG('VGG19')
