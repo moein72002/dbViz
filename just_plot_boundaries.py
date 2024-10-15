@@ -107,6 +107,8 @@ parser.add_argument('--dryrun', action='store_true')
 parser.add_argument('--imgs', default=None,
                         type=lambda s: [int(item) for item in s.split(',')])
 parser.add_argument('--temp', default=1.0, type=float)
+parser.add_argument('--range_l', default=0.5, type=float)
+parser.add_argument('--range_r', default=0.5, type=float)
 parser.add_argument('--plot_method', default='greys', type=str)
 parser.add_argument('--resolution', default=500, type=float, help='resolution for plot')
 parser.add_argument('--adv', action='store_true', help='Adversarially attack images?')
