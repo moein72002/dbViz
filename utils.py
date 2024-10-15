@@ -288,7 +288,7 @@ def produce_plot_alt(path, preds, planeloader, images, labels, normalize_transfo
         img_dir = '/'.join([p for p in (path.split('/'))[:-1]])
         os.makedirs(img_dir, exist_ok=True)
         #os.makedirs(path.split, exist_ok=True)
-        plt.savefig(f'{path}.png',bbox_extra_artists=(legend1,), bbox_inches='tight')
+        # plt.savefig(f'{path}.png',bbox_extra_artists=(legend1,), bbox_inches='tight')
     plt.close(fig)
 
     val_counts = dict(Counter(class_pred))
