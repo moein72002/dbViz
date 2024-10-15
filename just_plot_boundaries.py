@@ -159,6 +159,7 @@ def calculate_overall_auc(args):
     }
     all_ground_truth = []
 
+    print(f"args.load_path: {args.load_path}")
     # Loop through each folder in the specified load path
     for root, dirs, _ in os.walk(args.load_path):
         for dir_name in dirs:
