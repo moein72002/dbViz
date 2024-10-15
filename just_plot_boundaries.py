@@ -86,7 +86,7 @@ def plot(net_name, load_path, plot_path):
     planeloader = make_planeloader(images, args)
     preds = decision_boundary(args, net, planeloader, device)
 
-    sampl_path = '_'.join(list(map(str, args.imgs)))
+    # sampl_path = '_'.join(list(map(str, args.imgs)))
     args.plot_path = plot_path
     plot = produce_plot_alt(args.plot_path, preds, planeloader, images, labels, trainloader, temp=args.temp)
 
