@@ -50,7 +50,7 @@ def plot(net_name, load_path, plot_path):
     start = time.time()
     if args.imgs is None:
         # images, labels = get_random_images(trainloader.dataset)
-        images, labels = get_random_images(testloader.dataset)
+        images, labels, ids = get_random_images(testloader.dataset)
     elif -1 in args.imgs:
         dummy_imgs, _ = get_random_images(testloader.dataset)
         images, labels = get_noisy_images(torch.stack(dummy_imgs), testloader.dataset, net, device)
