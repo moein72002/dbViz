@@ -88,7 +88,13 @@ def plot(net_name, load_path, plot_path):
 
     # sampl_path = '_'.join(list(map(str, args.imgs)))
     args.plot_path = plot_path
-    plot = produce_plot_alt(args.plot_path, preds, planeloader, images, labels, trainloader, temp=args.temp)
+    val_counts = produce_plot_alt(args.plot_path, preds, planeloader, images, labels, trainloader, temp=args.temp)
+    print(f"val_counts: {val_counts}")
+
+    sum_counts = sum(val_counts.get(label, 0) for label in labels)
+    ats = sum_counts / sum(val_counts.values())
+
+    print(f"ats: {ats}")
 
     end = time.time()
     simple_lapsed_time("Time taken to plot the image", end - start)
