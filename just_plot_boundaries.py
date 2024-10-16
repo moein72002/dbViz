@@ -110,7 +110,7 @@ def plot(net_name, load_path, plot_path, testloader, normalize_transform):
         # sampl_path = '_'.join(list(map(str, args.imgs)))
         args.plot_path = plot_path
         val_counts = produce_plot_alt(args.plot_path, preds, planeloader, images, labels, normalize_transform, temp=args.temp)
-        print(f"val_counts: {val_counts}")
+        # print(f"val_counts: {val_counts}")
 
         total_count = sum(val_counts.values())
 
@@ -143,7 +143,6 @@ def plot(net_name, load_path, plot_path, testloader, normalize_transform):
 
     ats_avg = ats_sum / args.num_plots
     print(f"ats_avg: {ats_avg}")
-    print()
 
     end = time.time()
     simple_lapsed_time("Time taken to plot the image", end - start)
@@ -189,8 +188,11 @@ def calculate_overall_auc(args):
 
                 for key in all_predictions:
                     all_predictions[key].append(plot_result[key])  # Collect predictions for each metric
+
+                print()
             else:
-                print(f"Model or metadata file not found in {model_folder_path}")
+                if not model_folder_path.endswith(test_dataset):
+                    print(f"Model or metadata file not found in {model_folder_path}")
 
     # Calculate AUC for each metric using the accumulated predictions and ground truth
     overall_auc = {}
