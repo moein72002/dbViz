@@ -182,7 +182,7 @@ def calculate_overall_auc(args):
                 elif dataset_name == "tiny":
                     args.num_classes = 200
                 elif dataset_name == "imagenet-30":
-                    args.num_classes = 30
+                    args.num_classes = 10
                 elif dataset_name == "pubfig":
                     args.num_classes = 50
 
