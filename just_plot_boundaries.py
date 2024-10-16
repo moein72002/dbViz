@@ -186,6 +186,8 @@ def calculate_overall_auc(args):
                 elif dataset_name == "pubfig":
                     args.num_classes = 50
 
+                print(f"args.num_classes: {args.num_classes}")
+
                 # Call the plot function for the current model
                 plot_result = plot(args.net, model_file_path, args.plot_path, testloader, normalize_transform)
 
