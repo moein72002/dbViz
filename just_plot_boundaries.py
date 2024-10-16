@@ -172,7 +172,19 @@ def calculate_overall_auc(args):
 
                 metadata = torch.load(metadata_file_path)
                 # args.num_classes = metadata.get('num_classes')
-                args.num_classes = 10
+                dataset_name = metadata["config"]["dataset"]
+                if dataset_name in ["cifar10", "mnist", "fmnist"]:
+                    args.num_classes = 10
+                elif dataset_name == "cifar100":
+                    args.num_classes = 100
+                elif dataset_name == "gtsrb":
+                    args.num_classes = 43
+                elif dataset_name == "tiny":
+                    args.num_classes = 200
+                elif dataset_name == "imagenet-30":
+                    args.num_classes = 30
+                elif dataset_name == "pubfig":
+                    args.num_classes = 50
 
                 # Call the plot function for the current model
                 plot_result = plot(args.net, model_file_path, args.plot_path, testloader, normalize_transform)
