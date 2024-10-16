@@ -177,10 +177,10 @@ def calculate_overall_auc(args):
                     args.num_classes = 10
                 elif dataset_name == "cifar100":
                     args.num_classes = 100
-                    continue
+                    # continue
                 elif dataset_name == "gtsrb":
                     args.num_classes = 43
-                    continue
+                    # continue
                 elif dataset_name == "tiny":
                     args.num_classes = 200
                 elif dataset_name == "imagenet-30":
