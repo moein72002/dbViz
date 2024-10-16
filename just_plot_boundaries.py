@@ -138,6 +138,8 @@ def plot(net_name, load_path, plot_path, testloader, normalize_transform):
 
     print(f"load_path: {load_path}")
 
+    print(f"avg_probs: {avg_probs}")
+
     renyi_entropy_of_avg_probs = renyi_entropy(avg_probs, args.alpha)
     print(f"renyi_entropy_of_avg_probs: {renyi_entropy_of_avg_probs}")
 
