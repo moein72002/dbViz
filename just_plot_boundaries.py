@@ -180,9 +180,9 @@ def calculate_overall_auc(args):
                 ground_truth = metadata.get('ground_truth')
                 print(f"ground_truth: {ground_truth}")
 
-                if "target_class" in metadata["config"].keys():
-                    target_class = metadata["config"]["target_class"]
-                    print(f"target_class: {target_class}")
+                # if "target_class" in metadata["config"].keys():
+                #     target_class = metadata["config"]["target_class"]
+                #     print(f"target_class: {target_class}")
 
                 # Accumulate ground truth and predictions for each metric
                 if ground_truth:
