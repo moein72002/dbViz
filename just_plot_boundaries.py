@@ -197,7 +197,7 @@ def calculate_overall_auc(args):
 
                 print()
             else:
-                if not model_folder_path.endswith(test_dataset):
+                if not model_folder_path.endswith("test_dataset"):
                     print(f"Model or metadata file not found in {model_folder_path}")
 
     # Calculate AUC for each metric using the accumulated predictions and ground truth
