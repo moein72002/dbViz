@@ -62,7 +62,7 @@ def plot(net_name, load_path, plot_path, testloader, normalize_transform):
     start = time.time()
 
 
-    sum_probs = {}
+    renyi_entropy_sum = 0.0
     ats_sum = 0.0
     for _ in range(args.num_plots):
         if args.imgs is None:
@@ -117,27 +117,20 @@ def plot(net_name, load_path, plot_path, testloader, normalize_transform):
         # Compute the probabilities from the value counts
         probabilities = {label: count / total_count for label, count in val_counts.items()}
 
-        for label, prob in probabilities.items():
-            if label in sum_probs:
-                sum_probs[label] += prob
-            else:
-                sum_probs[label] = prob
+        renyi_entropy_sum += renyi_entropy(probabilities, args.alpha)
 
         ats = ats_sum_counts / sum(val_counts.values())
 
         # print(f"ats: {ats}")
         ats_sum += ats
 
-    avg_probs = {}
-    for label, prob in sum_probs.items():
-        avg_probs[label] = sum_probs[label] / args.num_plots
 
     print(f"load_path: {load_path}")
 
     print(f"avg_probs: {avg_probs}")
 
-    renyi_entropy_of_avg_probs = renyi_entropy(avg_probs, args.alpha)
-    print(f"renyi_entropy_of_avg_probs: {renyi_entropy_of_avg_probs}")
+    renyi_entropy_avg = renyi_entropy_sum / args.num_plots
+    print(f"renyi_entropy_avg: {renyi_entropy_avg}")
 
     ats_avg = ats_sum / args.num_plots
     print(f"ats_avg: {ats_avg}")
@@ -146,14 +139,14 @@ def plot(net_name, load_path, plot_path, testloader, normalize_transform):
     simple_lapsed_time("Time taken to plot the image", end - start)
 
     return {
-        "renyi_entropy_of_avg_probs": renyi_entropy_of_avg_probs,
+        "renyi_entropy_avg": renyi_entropy_avg,
         "ats_avg": ats_avg
     }
 
 def calculate_overall_auc(args):
     # Initialize dictionaries to store all predictions and ground truth labels across models
     all_predictions = {
-        "renyi_entropy_of_avg_probs": [],
+        "renyi_entropy_avg": [],
         "ats_avg": []
     }
     all_ground_truth = []
