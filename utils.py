@@ -255,8 +255,8 @@ def produce_plot_alt(path, preds, planeloader, images, labels, normalize_transfo
     y = planeloader.dataset.coefs2.cpu().numpy()
     label_color_dict = dict(zip([*range(10)], cmaplist))
 
-    # color_idx = [label_color_dict[label] for label in class_pred]
-    # scatter = ax1.scatter(x, y, c=color_idx, alpha=val, s=0.1)
+    color_idx = [label_color_dict[label] for label in class_pred]
+    scatter = ax1.scatter(x, y, c=color_idx, alpha=val, s=0.1)
     markers = [plt.Line2D([0,0],[0,0],color=color, marker='o', linestyle='') for color in label_color_dict.values()]
     legend1 = plt.legend(markers, classes, numpoints=1,bbox_to_anchor=(1.01, 1))
     ax1.add_artist(legend1)
@@ -320,8 +320,8 @@ def produce_plot_x(path, preds, planeloader, images, labels, trainloader, title=
     y = planeloader.dataset.coefs2.cpu().numpy()
     label_color_dict = dict(zip([*range(10)], cmaplist))
 
-    # color_idx = [label_color_dict[label] for label in class_pred]
-    # scatter = ax1.scatter(x, y, c=color_idx, alpha=val, s=0.1)
+    color_idx = [label_color_dict[label] for label in class_pred]
+    scatter = ax1.scatter(x, y, c=color_idx, alpha=val, s=0.1)
     markers = [plt.Line2D([0,0],[0,0],color=color, marker='o', linestyle='') for color in label_color_dict.values()]
     # legend1 = plt.legend(markers, classes, numpoints=1,bbox_to_anchor=(1.01, 1))
     # ax1.add_artist(legend1)
@@ -409,8 +409,8 @@ def produce_plot_sepleg(path, preds, planeloader, images, labels, trainloader, t
     y = planeloader.dataset.coefs2.cpu().numpy()
     label_color_dict = dict(zip([*range(10)], cmaplist))
 
-    # color_idx = [label_color_dict[label] for label in class_pred]
-    # scatter = ax1.scatter(x, y, c=color_idx, alpha=0.5, s=0.1)
+    color_idx = [label_color_dict[label] for label in class_pred]
+    scatter = ax1.scatter(x, y, c=color_idx, alpha=0.5, s=0.1)
     markers = [plt.Line2D([0,0],[0,0],color=color, marker='o', linestyle='') for color in label_color_dict.values()]
 
     coords = planeloader.dataset.coords
@@ -553,8 +553,8 @@ def calculate_iou_plot(path, preds, planeloader, images, labels, trainloader, ep
     y = planeloader.dataset.coefs2.cpu().numpy()
     label_color_dict = dict(zip([*range(10)], cmaplist))
 
-    # color_idx = [label_color_dict[label] for label in class_pred]
-    # scatter = ax1.scatter(x, y, c=color_idx, alpha=val, s=0.1)
+    color_idx = [label_color_dict[label] for label in class_pred]
+    scatter = ax1.scatter(x, y, c=color_idx, alpha=val, s=0.1)
     markers = [plt.Line2D([0,0],[0,0],color=color, marker='o', linestyle='') for color in label_color_dict.values()]
     legend1 = plt.legend(markers, classes, numpoints=1,bbox_to_anchor=(1.01, 1))
     ax1.add_artist(legend1)
