@@ -171,7 +171,8 @@ def calculate_overall_auc(args):
                 testloader, normalize_transform = create_test_loader(model_folder_path)
 
                 metadata = torch.load(metadata_file_path)
-                args.num_classes = metadata.get('num_classes')
+                # args.num_classes = metadata.get('num_classes')
+                args.num_classes = 10
 
                 # Call the plot function for the current model
                 plot_result = plot(args.net, model_file_path, args.plot_path, testloader, normalize_transform)
