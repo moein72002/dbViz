@@ -40,10 +40,6 @@ def renyi_entropy(probabilities, alpha):
     return renyi_entropy_value
 
 def plot(net_name, load_path, plot_path, testloader, normalize_transform):
-    if args.baseset == "CIFAR10":
-        args.num_classes = 10
-    elif args.baseset == "CIFAR100":
-        args.num_classes = 100
 
     print('###############################')
     print(net_name)
@@ -174,11 +170,13 @@ def calculate_overall_auc(args):
             if os.path.exists(model_file_path) and os.path.exists(metadata_file_path):
                 testloader, normalize_transform = create_test_loader(model_folder_path)
 
+                metadata = torch.load(metadata_file_path)
+                args.num_classes = metadata.get('num_classes')
+
                 # Call the plot function for the current model
                 plot_result = plot(args.net, model_file_path, args.plot_path, testloader, normalize_transform)
 
                 # Load ground truth from metadata.pt
-                metadata = torch.load(metadata_file_path)
                 ground_truth = metadata.get('ground_truth')
                 print(f"ground_truth: {ground_truth}")
 
@@ -271,7 +269,7 @@ def create_test_loader(model_folder_path):
     # Load the metadata to extract the transformation
     metadata_path = os.path.join(model_folder_path, 'metadata.pt')
     metadata = torch.load(metadata_path)
-    transform = metadata["config"]["transform"]
+    transform = metadata["transformation"]
     normalize_transform = next((t for t in transform.transforms if isinstance(t, Normalize)), None)
 
     # Create the test dataset and data loader
