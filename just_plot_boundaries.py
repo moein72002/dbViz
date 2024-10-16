@@ -180,9 +180,9 @@ def calculate_overall_auc(args):
                 ground_truth = metadata.get('ground_truth')
                 print(f"ground_truth: {ground_truth}")
 
-                # if "target_class" in metadata["config"].keys():
-                #     target_class = metadata["config"]["target_class"]
-                #     print(f"target_class: {target_class}")
+                if "target_class" in metadata["config"].keys():
+                    target_class = metadata["config"]["target_class"]
+                    print(f"target_class: {target_class}")
 
                 # Accumulate ground truth and predictions for each metric
                 if ground_truth:
@@ -269,7 +269,7 @@ def create_test_loader(model_folder_path):
     # Load the metadata to extract the transformation
     metadata_path = os.path.join(model_folder_path, 'metadata.pt')
     metadata = torch.load(metadata_path)
-    transform = metadata["transformation"]
+    transform = metadata["config"]["transform"]
     normalize_transform = next((t for t in transform.transforms if isinstance(t, Normalize)), None)
 
     # Create the test dataset and data loader
