@@ -245,51 +245,51 @@ def produce_plot_alt(path, preds, planeloader, images, labels, normalize_transfo
 
     cmaplist = cmaplist[:len(classes)]
     col_map = LinearSegmentedColormap.from_list('custom_colormap', cmaplist, N=len(classes))
-    fig, ax1 = plt.subplots()
+    # fig, ax1 = plt.subplots()
     import torch.nn as nn
     preds = torch.stack((preds))
     preds = nn.Softmax(dim=1)(preds / temp)
     val = torch.max(preds,dim=1)[0].cpu().numpy()
     class_pred = torch.argmax(preds, dim=1).cpu().numpy()
-    x = planeloader.dataset.coefs1.cpu().numpy()
-    y = planeloader.dataset.coefs2.cpu().numpy()
-    label_color_dict = dict(zip([*range(10)], cmaplist))
-
-    # color_idx = [label_color_dict[label] for label in class_pred]
-    # scatter = ax1.scatter(x, y, c=color_idx, alpha=val, s=0.1)
-    markers = [plt.Line2D([0,0],[0,0],color=color, marker='o', linestyle='') for color in label_color_dict.values()]
-    legend1 = plt.legend(markers, classes, numpoints=1,bbox_to_anchor=(1.01, 1))
-    ax1.add_artist(legend1)
-    coords = planeloader.dataset.coords
-
-    dm = torch.tensor(normalize_transform.mean)[:, None, None]
-    ds = torch.tensor(normalize_transform.std)[:, None, None]
-    for i, image in enumerate(images):
-        # import ipdb; ipdb.set_trace()
-        img = torch.clamp(image * ds + dm, 0, 1)
-        img = img.cpu().numpy().transpose(1,2,0)
-        if img.shape[0] > 32:
-            from PIL import Image
-            img = img*255
-            img = img.astype(np.uint8)
-            img = Image.fromarray(img).resize(size=(32, 32))
-            img = np.array(img)
-
-        coord = coords[i]
-        imscatter(coord[0], coord[1], img, ax1)
-
-    red_patch = mpatches.Patch(color =cmaplist[labels[0]] , label=f'{classes[labels[0]]}')
-    blue_patch = mpatches.Patch(color =cmaplist[labels[1]], label=f'{classes[labels[1]]}')
-    green_patch = mpatches.Patch(color =cmaplist[labels[2]], label=f'{classes[labels[2]]}')
-    plt.legend(handles=[red_patch, blue_patch, green_patch], loc='upper center', bbox_to_anchor=(0.5, 1.05),
-              ncol=3, fancybox=True, shadow=True)
-    plt.title(f'Epoch: {epoch}')
-    if path is not None:
-        img_dir = '/'.join([p for p in (path.split('/'))[:-1]])
-        os.makedirs(img_dir, exist_ok=True)
-        #os.makedirs(path.split, exist_ok=True)
-        # plt.savefig(f'{path}.png',bbox_extra_artists=(legend1,), bbox_inches='tight')
-    plt.close(fig)
+    # x = planeloader.dataset.coefs1.cpu().numpy()
+    # y = planeloader.dataset.coefs2.cpu().numpy()
+    # label_color_dict = dict(zip([*range(10)], cmaplist))
+    #
+    # # color_idx = [label_color_dict[label] for label in class_pred]
+    # # scatter = ax1.scatter(x, y, c=color_idx, alpha=val, s=0.1)
+    # markers = [plt.Line2D([0,0],[0,0],color=color, marker='o', linestyle='') for color in label_color_dict.values()]
+    # legend1 = plt.legend(markers, classes, numpoints=1,bbox_to_anchor=(1.01, 1))
+    # ax1.add_artist(legend1)
+    # coords = planeloader.dataset.coords
+    #
+    # dm = torch.tensor(normalize_transform.mean)[:, None, None]
+    # ds = torch.tensor(normalize_transform.std)[:, None, None]
+    # for i, image in enumerate(images):
+    #     # import ipdb; ipdb.set_trace()
+    #     img = torch.clamp(image * ds + dm, 0, 1)
+    #     img = img.cpu().numpy().transpose(1,2,0)
+    #     if img.shape[0] > 32:
+    #         from PIL import Image
+    #         img = img*255
+    #         img = img.astype(np.uint8)
+    #         img = Image.fromarray(img).resize(size=(32, 32))
+    #         img = np.array(img)
+    #
+    #     coord = coords[i]
+    #     imscatter(coord[0], coord[1], img, ax1)
+    #
+    # red_patch = mpatches.Patch(color =cmaplist[labels[0]] , label=f'{classes[labels[0]]}')
+    # blue_patch = mpatches.Patch(color =cmaplist[labels[1]], label=f'{classes[labels[1]]}')
+    # green_patch = mpatches.Patch(color =cmaplist[labels[2]], label=f'{classes[labels[2]]}')
+    # plt.legend(handles=[red_patch, blue_patch, green_patch], loc='upper center', bbox_to_anchor=(0.5, 1.05),
+    #           ncol=3, fancybox=True, shadow=True)
+    # plt.title(f'Epoch: {epoch}')
+    # if path is not None:
+    #     img_dir = '/'.join([p for p in (path.split('/'))[:-1]])
+    #     os.makedirs(img_dir, exist_ok=True)
+    #     #os.makedirs(path.split, exist_ok=True)
+    #     # plt.savefig(f'{path}.png',bbox_extra_artists=(legend1,), bbox_inches='tight')
+    # plt.close(fig)
 
     val_counts = dict(Counter(class_pred))
     return val_counts
