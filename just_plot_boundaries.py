@@ -162,7 +162,8 @@ def calculate_overall_auc(args):
                 testloader, normalize_transform = create_test_loader(model_folder_path)
 
                 metadata = torch.load(metadata_file_path)
-                # args.num_classes = metadata.get('num_classes')
+                args.num_classes = metadata.get('num_classes')
+
                 # dataset_name = metadata["config"]["dataset"]
                 # if dataset_name in ["cifar10", "mnist", "fmnist"]:
                 #     args.num_classes = 10
